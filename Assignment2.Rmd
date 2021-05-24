@@ -1,6 +1,6 @@
 ---
 title: "Informative Title Name"
-author: "GROUP NUMBER: ADD YOUR NAMES HERE"
+author: "69: Woojin Park and David Pham"
 date: May 28, 2021
 subtitle: STA304 - Assignment 2
 output:
