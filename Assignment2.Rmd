@@ -245,15 +245,22 @@ summary(model)
 
 ## Post-Stratification 
 
-<Here you should explain the poststratification process>
+Multilevel regression with post stratification is a method to get weighted average estimate from all combination of attributes which is referred to as “cell” [1]. Each cell will be modeled by different variables. In our case we are going to use age, province and income to model each cell.
 
-<In order to estimate the proportion of voters.....>
+To calculate these weights the we are going to use the equation below
 
-<To put math/LaTeX inline just use one set of dollar signs. Example: $\hat{y}^{PS}$ >
+$$ y^{ps} = \frac{\sum{N_j \hat{y_j}}}{\sum N_j} $$
 
-<To put math on its own line use two sets of dollar signs:>
+Here $\hat{y_j}$ is the estimate of vote proportion at cell j.
+$N_j$ is the population size of the jth cell.
 
-$$ include.your.mathematical.model.here.if.you.have.some.math.to.show $$
+We are going to estimate our $y^{ps}$ (proportion of voters who are voting for demographics) for each cell by using multi-level modelling. Then we can calculate these weights at the population level by using the GSS data to predict the proportion of votes in the upcoming election.
+
+The general work flow is as below.[2]
+1. Read in the poll
+2. Model the poll
+3. Read in the poststratification data
+4. Apply the model to the poststratification data
 
 
 All analysis for this report was programmed using `R version 4.0.2`. 
@@ -273,7 +280,7 @@ model <- lm(vote_liberal ~ age, data=survey_data)
 # broom::tidy(model)
 ```
 
-```{r, include=FALSE, echo=FALSE}
+```{r, include=TRUE, echo=FALSE}
 
 library(knitr)
 library(kableExtra)
@@ -283,8 +290,6 @@ library(gridExtra)
 census_data_counts <- census_data %>% 
   group_by(age, province, income) %>% 
   summarise(n=n())
-
-census_data_counts
 
 census_data_counts$estimate <-
   model %>%
@@ -305,11 +310,9 @@ group_by_income <- census_data_counts %>%
   group_by(income)%>%
   summarise(liberal_predict = sum(liberal_predict_prop)/sum(n))
 
-group_by_age %>% kable(row.names=T, escape=F, caption="Logistic Regression Model Summary") %>% kable_styling(latex_options="HOLD_position")
-
-group_by_province %>% kable(row.names=T, escape=F, caption="Logistic Regression Model Summary") %>% kable_styling(latex_options="HOLD_position")
-
-group_by_income %>% kable(row.names=T, escape=F, caption="Logistic Regression Model Summary") %>% kable_styling(latex_options="HOLD_position")
+group_by_age
+group_by_province
+group_by_income
 
 ```
 
