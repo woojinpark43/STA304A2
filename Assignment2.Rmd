@@ -33,14 +33,25 @@ survey_data <- read_csv("ces2019-phone_clean.csv")
 
 ## Introduction
 
-<Here you should have a few paragraphs of text introducing the problem, getting the reader interested/ready for the rest of the report.>
+In this report, we seek to predict the popular political party in the upcoming 2023 Canadian Federal Election. We will achieve this by constructing a suitable model using the 2019 Canadian Election Study phone (survey) data, and post-stratifying it with the General Social Survey (census) data.
 
-<Introduce terminology.>
+Politics and democracy are crucially important aspects in Canada because they determine our government and help shape the society we live in (*). The analysis can predict which political party is more likely to win the election. Thus, people can have an idea of which candidate in the party will likely get elected by certain aspects we have used in our analysis. Furthermore, this analysis can set a global precedence for all democratic countries in the world and have them also employ these predictive models.
 
-<Highlight hypotheses.>
+Predicting the next political term is a very interesting subject, especially in the United States of America. To elaborate, Professor Allan Lichtman, a professor at the American University in Washington, D.C has created a flawless predictive model using historical data to correctly predict the next president of the U.S.A; in fact, it is so flawless, it has correctly predicted every election since 1984 (*).
+Since we are using the GSS (Global Service Survey) data, there is a high chance the analysis in our report might occur.
 
-<Optional: You can also include a description of each section of this report as a last paragraph.>
+On the political spectrum, we can generally divide peoples’ views into a left (Liberal) view, and a right (Conservative) view. Liberals generally believe in governmental action that promotes equality for all, while conservatives believe in personal responsibility and freedom (*).
 
+Finally, we present our research question:  
+Is there a correlation with age, gender, province, highest level of education, religion, and income as predictors for whether or not an individual votes Liberal?
+
+The model in question will be a logistic regression model.
+By definition, logistic regression must come with assumptions, similarly to ordinary least squares. We have 4 main assumptions (*):
+
+1. **Binary Response**: The response variable can only have two possible responses. This is necessary for logistic regression and is satisfied in our report, as we will see later on.  
+2. **Independence**: The observations must be independent of one another. This is satisfied due to the nature of the CES data.  
+3. **Variance Structure**: By definition of a binomial random variable, its variance is $np(1-p)$, implying that variance is highest when $p = 0.5$.  
+4. **Linearity**: The log of the odds ratio, $log(\frac{p}{1-p})$, must be a linear function of $x$. This is similar to linear regression, but from a logistic standpoint.
 
 ## Data
 
@@ -210,9 +221,10 @@ where:
   + j = 4: Respondent makes between \$75,000 and \$99,999
   + j = 5: Respondent makes between \$100,000 and \$124,999
   + j = 6: Respondent makes $125,000 or more
+- $\epsilon$ is the error term in the model.
 
 
-```{r, echo = TRUE, include=TRUE}
+```{r, echo = FALSE, include=FALSE}
 
 # Creating the Model
 model <- glm(vote_liberal ~ age + province + income, data=survey_data, family = binomial)
@@ -261,7 +273,7 @@ model <- lm(vote_liberal ~ age, data=survey_data)
 # broom::tidy(model)
 ```
 
-```{r, include=FALSE}
+```{r, include=FALSE, echo=FALSE}
 
 library(knitr)
 library(kableExtra)
