@@ -44,8 +44,7 @@ survey_data <- read_csv("ces2019-phone_clean.csv")
 <Type here a paragraph introducing the data, its context and as much info about the data collection process that you know.>
 The data we will be using to create a regression model is from the 2019 Canadian Election Survey Phone data. The CES organization strives to learn more about Canadians' political opinions and behaviour and provide transparency about the thoughts of citizens (*). The information was initially created by calling eligible voting Canadians, and asking them about their thoughts on the political candidates and the state of the country.
 
-<Type here a summary of the cleaning process (**only add in stuff beyond my original gss_cleaning.R code**). You only need to describe additional cleaning that you and your group did.> ]
-The original .csv file was quite messy and had many variables that were not used in this report. To clean the data, we first mutate the desired variables into distinguishable names that could be used in the model, such as age and gender. A few if/else clauses were used to make the data tidy. Next, we turn the appropriate variables into factor types so that the results can be properly interpreted. Finally, we select the variables that we thought were most appropriate for our model.
+The original .csv file for the CES data was quite messy and had many variables that were not used in this report. To clean the data, we first mutate the desired variables into distinguishable names that could be used in the model, such as age and gender. A few if/else clauses were used to make the data tidy. Next, we turn the appropriate variables into factor types so that the results can be properly interpreted. Finally, we select the variables that we thought were most appropriate for our model. A similar process was done for the GSS data.
 
 ```{r, include = FALSE}
 
@@ -56,11 +55,29 @@ survey_data <-
   mutate(age = 2019-q2,
          # 1 is male, 0 is female
          gender = ifelse(q3==1, 1, 0),
-         province = q4,
+         province = ifelse(q4 == 1, 'Newfoundland and Labrador',
+                           ifelse(q4 == 2, 'Prince Edward Island',
+                                  ifelse(q4 == 3, 'Nova Scotia',
+                                         ifelse(q4 == 4, 'New Brunswick',
+                                                ifelse(q4 == 5, 'Quebec',
+                                                       ifelse(q4 == 6, 'Ontario',
+                                                              ifelse(q4 == 7, 'Manitoba',
+                                                                     ifelse(q4 == 8, 'Saskatchewan',
+                                                                            ifelse(q4 == 9, 'Alberta',
+                                                                                   ifelse(q4 == 10,
+                                                                                          'British Columbia',
+                                                                                          NA)))))))))),
          education = q61,
          # if the label is 21, -9, or -8, then they are not religious
          religion = ifelse(q62 == 21 | q62 ==  -9 | q62 == -8, 0, 1),
-         income = q69,
+         income = ifelse(q69 < 0, 'Less than $25,000',
+                         ifelse(q69 >= 0 & q69 < 25000, 'Less than $25,000',
+                                ifelse(q69 >= 75000 & q69 <= 99999, '$75,000 to $99,999',
+                                       ifelse(q69 >= 50000 & q69 < 75000, '$50,000 to $74,999',
+                                              ifelse(q69 >= 25000 & q69 < 50000, '$25,000 to $49,999',
+                                                     ifelse(q69 >= 125000, '$125,000 and more',
+                                                            ifelse(q69 >= 100000 & q69 < 125000,
+                                                                   '$100,000 to $ 124,999', 0))))))),
          vote_liberal = ifelse(q11==1, 1, 0)) %>% 
   select(age, gender, province, religion, education, income, vote_liberal)
 
@@ -68,17 +85,29 @@ survey_data$gender <- as.factor(survey_data$gender)
 survey_data$province <- as.factor(survey_data$province)
 survey_data$education <- as.factor(survey_data$education)
 survey_data$religion <- as.factor(survey_data$religion)
+survey_data$income <- factor(survey_data$income,
+                             levels = c('Less than $25,000', '$25,000 to $49,999', '$50,000 to $74,999',
+                                        '$75,000 to $99,999', '$100,000 to $ 124,999', '$125,000 and more'))
 
 census_data <- census_data %>%
-  mutate(age=round(age)) %>%
-  select(age)
+  mutate(age=round(age),
+         gender = ifelse(sex=='Male', 1, 0),
+         education = education,
+         religion = ifelse(religion_has_affiliation == 'Has religious affiliation', 1, 0),
+         income = income_respondent,
+         province = province) %>%
+  select(age, gender, education, religion, income, province)
+
+census_data$gender <- as.factor(census_data$gender)
+census_data$province <- as.factor(census_data$province)
+census_data$education <- as.factor(census_data$education)
+census_data$religion <- as.factor(census_data$religion)
+census_data$income <- factor(census_data$income,
+                             levels = c('Less than $25,000', '$25,000 to $49,999', '$50,000 to $74,999',
+                                        '$75,000 to $99,999', '$100,000 to $ 124,999', '$125,000 and more'))
 
 ```
 
-
-<Remember, you may want to use multiple datasets here, if you do end up using multiple data sets, or merging the data, be sure to describe this in the cleaning process and be sure to discuss important aspects of all the data that you used.>
-
-<Include a description of the important variables.> 
 In summary, these are the most important variables collected from the survey:
 
 - `age`: Age based on year of birth (discrete, numeric variable).
@@ -110,20 +139,20 @@ In summary, these are the most important variables collected from the survey:
   + (10): Master's degree
   + (11): Professional degree or doctorate
 - `religion`: The religion that the respondent follows. There are a plethora of religions out there in the world, so we will not be writing them all here. If you would like to see an exhaustive list of all the recorded responses, the CES has provided documentation for all survey data. For our report, we are interested in whether or not a respondent follows a religion. If they are religious, they will have a value of *1* in the data frame. Otherwise, the value for this variable is *0*. (cite)
-- `income`: The income of a respondent before taxes. If the variable is equal to -9 or -8, this means that the respondent did not know their income, or refused to answer the question (respectively).
+- `income`: The income of a respondent before taxes. This variable has been turned into a factor variable and is organized into income brackets.
   
-Here is a table of all the variables, along with their respective means and standard deviations of the sample:
+Here is the mean and standard deviation of all respondents' age:
 
 ```{r message = FALSE, include = TRUE, echo = FALSE}
 # Use this to calculate some summary measures.
 # hard coding values for table
 options(digits = 3)
 
-var = c('age', 'income')
+var = c('age')
 
-mean_coeff = c(mean(survey_data$age), mean(survey_data$income))
+mean_coeff = c(mean(survey_data$age))
 
-sd_coeff = c(sd(survey_data$age), sd(as.numeric(survey_data$income)))
+sd_coeff = c(sd(survey_data$age))
 
 # create the table
 table = cbind(var, round(mean_coeff, digits = 3), round(sd_coeff, digits = 3))
@@ -132,10 +161,9 @@ knitr::kable(table, align = c("r","r"), caption="Means and standard deviations o
 
 ```
 
-As a side note, the spread of income is incredibly high because many people did not answer this question; hence, there is some variability in this response. Furthermore, it is nonsensical to find the mean and spread of categorical data, so that has been omitted. Instead, here are some tables to display the frequency of the variables:
+This is the only numeric variable, as it is nonsensical to find the mean and spread of categorical data; so that has been omitted.
 
 ```{r}
-table(survey_data$gender)
 ```
 
 
@@ -171,7 +199,7 @@ model <- glm(vote_liberal ~ age + province + income + education, data=survey_dat
 
 # back1 = step(model, direction = "backward")
 
-ggplot(survey_data, aes(x = income, y = vote_liberal, color = factor(province))) + geom_point()
+ggplot(survey_data, aes(x = age, y = vote_liberal, color = factor(province))) + geom_point()
 
 # Model Results (to Report in Results section)
 summary(model)
