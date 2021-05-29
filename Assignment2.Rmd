@@ -11,9 +11,6 @@ output:
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 library(openintro)
 library(tidyverse)
-library(knitr)
-library(kableExtra)
-library(gridExtra)
 ```
 
 
@@ -46,16 +43,10 @@ Finally, we present our research question:
 Is there a correlation with age, gender, province, highest level of education, religion, and income as predictors for whether or not an individual votes Liberal?
 
 The model in question will be a logistic regression model.
-By definition, logistic regression must come with assumptions, similarly to ordinary least squares. We have 4 main assumptions (*):
-
-1. **Binary Response**: The response variable can only have two possible responses. This is necessary for logistic regression and is satisfied in our report, as we will see later on.  
-2. **Independence**: The observations must be independent of one another. This is satisfied due to the nature of the CES data.  
-3. **Variance Structure**: By definition of a binomial random variable, its variance is $np(1-p)$, implying that variance is highest when $p = 0.5$.  
-4. **Linearity**: The log of the odds ratio, $log(\frac{p}{1-p})$, must be a linear function of $x$. This is similar to linear regression, but from a logistic standpoint.
+By definition, logistic regression must come with assumptions, similarly to ordinary least squares. These will be the only assumptions we are making, and will be clarified in the Methods section.
 
 ## Data
 
-<Type here a paragraph introducing the data, its context and as much info about the data collection process that you know.>
 The data we will be using to create a regression model is from the 2019 Canadian Election Survey Phone data. The CES organization strives to learn more about Canadians' political opinions and behaviour and provide transparency about the thoughts of citizens (*). The information was initially created by calling eligible voting Canadians, and asking them about their thoughts on the political candidates and the state of the country.
 
 The original .csv file for the CES data was quite messy and had many variables that were not used in this report. To clean the data, we first mutate the desired variables into distinguishable names that could be used in the model, such as age and gender. A few if/else clauses were used to make the data tidy. Next, we turn the appropriate variables into factor types so that the results can be properly interpreted. Finally, we select the variables that we thought were most appropriate for our model. A similar process was done for the GSS data.
@@ -155,47 +146,27 @@ In summary, these are the most important variables collected from the survey:
 - `religion`: The religion that the respondent follows. There are a plethora of religions out there in the world, so we will not be writing them all here. If you would like to see an exhaustive list of all the recorded responses, the CES has provided documentation for all survey data. For our report, we are interested in whether or not a respondent follows a religion. If they are religious, they will have a value of *1* in the data frame. Otherwise, the value for this variable is *0*. (cite)
 - `income`: The income of a respondent before taxes. This variable has been turned into a factor variable and is organized into income brackets.
   
-Here is the mean and standard deviation of all respondents' age:
+The mean age is 51, and the standard deviation is 16.836. This is the only numeric variable, as it is nonsensical to find the mean and spread of categorical data; therefore, we will omit the rest.
 
-```{r message = FALSE, include = TRUE, echo = FALSE}
-# Use this to calculate some summary measures.
-# hard coding values for table
-options(digits = 3)
-
-var = c('age')
-
-mean_coeff = c(mean(survey_data$age))
-
-sd_coeff = c(sd(survey_data$age))
-
-# create the table
-table = cbind(var, round(mean_coeff, digits = 3), round(sd_coeff, digits = 3))
-colnames(table) = c('Variable Name', 'Mean', 'Standard Deviation')
-knitr::kable(table, align = c("r","r"), caption="Means and standard deviations of all variables in the survey data.")
-
+```{r, echo=FALSE, include=TRUE}
+ggplot(survey_data, aes(x = age, color=province)) + ggtitle("Figure 1: Histogram for Age") + 
+         geom_histogram(fill="white", bins=30) + theme(plot.title = element_text(hjust = 0.5))
 ```
 
-This is the only numeric variable, as it is nonsensical to find the mean and spread of categorical data; so that has been omitted.
-
-```{r}
-```
-
-
-<Include a description of the numerical summaries. Remember you can use `r ` to use inline R code.>
-
-```{r, echo = TRUE}
-
-# Use this to create some plots. Should probably describe both the sample and population.
-
-```
-
-<Include a clear description of the plot(s). I would recommend one paragraph for each plot.> 
+This histogram shows all ages of respondents who participated in the survey, colored by province. There are good distributions of respondents from multiple age groups, but we see that it is more condensed in the 30-60 range. Furthermore, within each province, the age distribution seems to divided fairly well; each province is fairly represented in the sample. With some hypothesis testing and confidence intervals, we could infer that the true mean lays somewhere around 50 as well.
 
 All analysis for this report was programmed using `R version 4.0.2`. 
 
 ## Methods
 
 Next, we will focus on the model used to predict whether or not a respondent will vote for the Liberal party. We believe that logistic regression is the most appropriate for this model because the response we are interested in consists of binary outcomes.
+
+We have 4 main assumptions (*):
+
+1. **Binary Response**: The response variable can only have two possible responses. This is necessary for logistic regression and is satisfied in our report, as we will see later on.  
+2. **Independence**: The observations must be independent of one another. This is satisfied due to the nature of the CES data.  
+3. **Variance Structure**: By definition of a binomial random variable, its variance is $np(1-p)$, implying that variance is highest when $p = 0.5$.  
+4. **Linearity**: The log of the odds ratio, $log(\frac{p}{1-p})$, must be a linear function of $x$. This is similar to linear regression, but from a logistic standpoint.
 
 
 ### Model Specifics
@@ -212,7 +183,7 @@ where:
 
 - $log(\frac{p}{1-p})$ is the logit function with probability $p$
 - $\beta_0$ is the intercept term
-- $\beta_1 x_{age}$ is a term where the $\beta_1$ coefficient represents the change in log odds for every one unit increase in $x_{age}$
+- $\beta_1 x_{age}$ is a term where the $\beta_1$ coefficient represents the change in log odds for every one unit increase in $x_{age}$ (holding all other predictors constant)
 - $\beta_i x_{provincei} , i = 2, 3, ...,10$ are the terms representing province, where dummy variables have been encoded. If province $i$ is being observed, all other values go to 0.
 - $\beta_j x_{incomej}, j = 2,3,4,5,6$ are the terms representing income, where dummy variables have once again been implemented. If income bracket $j$ is being observed, all other values go to 0. For values of j:
   + j = 1: Respondent makes less than $25,000.
@@ -231,7 +202,7 @@ model <- glm(vote_liberal ~ age + province + income, data=survey_data, family = 
 
 # back1 = step(model, direction = "backward")
 
-ggplot(survey_data, aes(x = age, y = vote_liberal, color = factor(province))) + geom_point()
+# ggplot(survey_data, aes(x = age, y = vote_liberal, color = factor(province))) + geom_point()
 
 # Model Results (to Report in Results section)
 summary(model)
@@ -265,20 +236,33 @@ The general work flow is as below.[5]
 
 All analysis for this report was programmed using `R version 4.0.2`. 
 
+## Results
 
+Finally, we interpret our findings. To begin, we take a look at the summary of the GLM using the survey data, along with all associated variables, slope estimates, and p-values:
 
-## Results 
+```{r, include = TRUE, echo = FALSE, warning = FALSE}
+# hard coding values for table
+options(digits = 3)
+fig = c('Age', 'Province (B.C)', 'Province (MB)', 'Province (N.B)', 'Province (N&L)', 'Province (N.S)',
+        'Province (ON)', 'Province (PEI)', 'Province (QB)', 'Province (SAS)', 'Income Bracket 2',
+        'Income Bracket 3', 'Income Bracket 4', 'Income Bracket 5', 'Income Bracket 6')
 
-```{r, include=FALSE}
+est = c(0.00836, 0.87737, 0.95866, 1.11431, 1.37125, 1.33236, 1.52760, 1.37905, 1.18043, 0.19015,
+        0.18886, 0.28289, 0.46032, 0.19512, 0.40145)
+p_val = c(0.00039, 0.00012, 0.00024, '3.6e-05', '2.1e-07', '5.1e-07', '8.1e-12', '1.7e-07', '1.8e-07',
+          0.51271, 0.16240, 0.02356, 0.00064, 0.17298, 0.00017)
 
-# Creating the Model
-model <- lm(vote_liberal ~ age, data=survey_data)
-
-# Model Results (to Report in Results section)
-# summary(model)
-# OR
-# broom::tidy(model)
+# create the table
+table = cbind(fig, est, p_val)
+colnames(table) = c('Variable', 'Slope Estimate', 'p-value')
+knitr::kable(table, align = c("r","r"), caption="Results of figures from Data section. [*]")
 ```
+
+Age, every province but Saskatchewan, and the \$75,000-\$99,999 and $125,000+ income brackets were found to be statistically significant. To interpret this (*):
+
+- For every one unit increase in age, the log-odds of voting for the Liberal party increases by 0.008.
+- If you live any province except Saskatchewan or Alberta, the log-odds of voting Liberal increases by its respective slope estimate (with respect to Alberta as the base comparison).
+- If a respondent makes \$75,000-\$99,999 or \$125,000+ annually, the log-odds of voting Liberal increases by around 0.4, compared to a respondent that makes less than $25,000.
 
 ```{r, include=TRUE, echo=FALSE}
 
@@ -316,15 +300,6 @@ group_by_income
 
 ```
 
-<Here you present your results. You may want to put them into a well formatted table. Be sure that there is some text describing the results.>
-
-
-<Note: Alternatively you can use the `knitr::kable` function to create a well formatted table from your code. See here: [https://rmarkdown.rstudio.com/lesson-7.html](https://rmarkdown.rstudio.com/lesson-7.html).>
-
-
-
-<Remember you can use `r ` to use inline R code.>
-
 
 ```{r, include = FALSE}
 
@@ -332,8 +307,6 @@ group_by_income
 
 
 ```
-
-<Include an explanation/interpretation of the visualizations. Make sure to comment on the appropriateness of the assumptions/results.>
 
 ## Conclusions
 
