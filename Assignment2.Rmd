@@ -37,7 +37,7 @@ Politics and democracy are crucially important aspects in Canada because they de
 Predicting the next political term is a very interesting subject, especially in the United States of America. To elaborate, Professor Allan Lichtman, a professor at the American University in Washington, D.C has created a flawless predictive model using historical data to correctly predict the next president of the U.S.A; in fact, it is so flawless, it has correctly predicted every election since 1984 (*).
 Since we are using the GSS (Global Service Survey) data, there is a high chance the analysis in our report might occur.
 
-On the political spectrum, we can generally divide peoples’ views into a left (Liberal) view, and a right (Conservative) view. Liberals generally believe in governmental action that promotes equality for all, while conservatives believe in personal responsibility and freedom (*).
+On the political spectrum, we can generally divide peoples’ views into a left (Liberal) view, and a right (Conservative) view. Liberals generally believe in governmental action that promotes equality for all, while conservatives believe in personal responsibility and freedom [6].
 
 Finally, we present our research question:  
 Is there a correlation with age, gender, province, highest level of education, religion, and income as predictors for whether or not an individual votes Liberal?
@@ -161,7 +161,7 @@ All analysis for this report was programmed using `R version 4.0.2`.
 
 Next, we will focus on the model used to predict whether or not a respondent will vote for the Liberal party. We believe that logistic regression is the most appropriate for this model because the response we are interested in consists of binary outcomes.
 
-We have 4 main assumptions (*):
+We have 4 main assumptions [7]:
 
 1. **Binary Response**: The response variable can only have two possible responses. This is necessary for logistic regression and is satisfied in our report, as we will see later on.  
 2. **Independence**: The observations must be independent of one another. This is satisfied due to the nature of the CES data.  
@@ -228,6 +228,7 @@ $N_j$ is the population size of the jth cell.
 We are going to estimate our $y^{ps}$ (proportion of voters who are voting for demographics) for each cell by using multi-level modelling. Then we can calculate these weights at the population level by using the GSS data to predict the proportion of votes in the upcoming election.
 
 The general work flow is as below.[5]
+
 1. Read in the poll
 2. Model the poll
 3. Read in the poststratification data
@@ -263,6 +264,9 @@ Age, every province but Saskatchewan, and the \$75,000-\$99,999 and $125,000+ in
 - For every one unit increase in age, the log-odds of voting for the Liberal party increases by 0.008.
 - If you live any province except Saskatchewan or Alberta, the log-odds of voting Liberal increases by its respective slope estimate (with respect to Alberta as the base comparison).
 - If a respondent makes \$75,000-\$99,999 or \$125,000+ annually, the log-odds of voting Liberal increases by around 0.4, compared to a respondent that makes less than $25,000.
+
+
+Below are the tables from the post stratification
 
 ```{r, include=TRUE, echo=FALSE}
 
@@ -310,17 +314,15 @@ group_by_income
 
 ## Conclusions
 
-<Here you should give a summary of the Hypotheses, Methods and Results>
+The above tables are grouped by age, province and income.
+When we group the post stratified data by age we can see that there is a trend that older age groups are more likely to vote for the liberal party.
 
-<Highlight Key Results.>
+When we group by province Alberta has the lowest while Ontario has the highest chance to vote for the liberal party.
 
-<Talk about big picture.>
+When grouped by income we can observe that people who make more money ($75000 + ) are likely vote for the libral party than people with low income (ex less than $25000)
 
-<Comment on any Weaknesses.>
+Liberal party should target high income people living in Ontario because by our post stratified result they will likely get voted by these people. Also, the liberal party can change their policy to target people who were not likely to vote for them in the post stratified result.
 
-<Comment on Future Work/Next Steps>
-
-<End with a concluding paragraph to wrap up the report.>
 
 
 ## Bibliography
@@ -334,4 +336,8 @@ group_by_income
 4. Juan Lopez-Martin, Justin H. Phillips. “Multilevel Regression and Poststratification Case Studies.” Chapter 1 Introduction to MRP, 9 Feb. 2021, bookdown.org/jl5522/MRP-case-studies/introduction-to-mrp.html. 
 
 
-5. Alexander, Rohan. “Getting Started with MRP.” Rohan Alexander, 3 Dec. 2019, rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/. 
+5. Alexander, Rohan. “Getting Started with MRP.” Rohan Alexander, 3 Dec. 2019, rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/.
+
+6. Housman, Patty. “Does Allan Lichtman Stand by His ‘13 Keys’ Prediction of a Joe Biden Win?” American University, 28 Oct. 2020, www.american.edu/cas/news/13-keys-election-prediction.cfm. 
+7. Legler, Paul Roback and Julie. “Beyond Multiple Linear Regression.” Chapter 6 Logistic Regression, 26 Jan. 2021, bookdown.org/roback/bookdown-BeyondMLR/ch-logreg.html#introduction-to-logistic-regression. 
+
