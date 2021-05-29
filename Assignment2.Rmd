@@ -245,7 +245,7 @@ summary(model)
 
 ## Post-Stratification 
 
-Multilevel regression with post stratification is a method to get weighted average estimate from all combination of attributes which is referred to as “cell” [1]. Each cell will be modeled by different variables. In our case we are going to use age, province and income to model each cell.
+Multilevel regression with post stratification is a method to get weighted average estimate from all combination of attributes which is referred to as “cell” [4]. Each cell will be modeled by different variables. In our case we are going to use age, province and income to model each cell.
 
 To calculate these weights the we are going to use the equation below
 
@@ -256,7 +256,7 @@ $N_j$ is the population size of the jth cell.
 
 We are going to estimate our $y^{ps}$ (proportion of voters who are voting for demographics) for each cell by using multi-level modelling. Then we can calculate these weights at the population level by using the GSS data to predict the proportion of votes in the upcoming election.
 
-The general work flow is as below.[2]
+The general work flow is as below.[5]
 1. Read in the poll
 2. Model the poll
 3. Read in the poststratification data
@@ -356,4 +356,9 @@ group_by_income
 
 2. Dekking, F. M., et al. (2005) *A Modern Introduction to Probability and Statistics: Understanding why and how.* Springer Science & Business Media.
 
-3.  Allaire, J.J., et. el. *References: Introduction to R Markdown*. RStudio. [https://rmarkdown.rstudio.com/docs/](https://rmarkdown.rstudio.com/docs/). (Last Accessed: January 15, 2021) 
+3.  Allaire, J.J., et. el. *References: Introduction to R Markdown*. RStudio. [https://rmarkdown.rstudio.com/docs/](https://rmarkdown.rstudio.com/docs/). (Last Accessed: January 15, 2021)
+
+4. Juan Lopez-Martin, Justin H. Phillips. “Multilevel Regression and Poststratification Case Studies.” Chapter 1 Introduction to MRP, 9 Feb. 2021, bookdown.org/jl5522/MRP-case-studies/introduction-to-mrp.html. 
+
+
+5. Alexander, Rohan. “Getting Started with MRP.” Rohan Alexander, 3 Dec. 2019, rohanalexander.com/posts/2019-12-04-getting_started_with_mrp/. 
