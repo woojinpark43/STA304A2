@@ -177,25 +177,34 @@ This is the only numeric variable, as it is nonsensical to find the mean and spr
 
 <Include a clear description of the plot(s). I would recommend one paragraph for each plot.> 
 
+All analysis for this report was programmed using `R version 4.0.2`. 
 
 ## Methods
 
-<Include some text introducing the methodology, maybe restating the problem/goal of this analysis.>
+Next, we will focus on the model used to predict whether or not a respondent will vote for the Liberal party. We believe that logistic regression is the most appropriate for this model because the response we are interested in consists of binary outcomes.
 
 
 ### Model Specifics
-<Here you can describe your regression model>
+We have used the Akaike Information Criterion (AIC) to help us remove unnecessary variables in our report. After running extensive summaries on the model, the predictors that the AIC kept were age, province, and income of the respondent. Our lowest value of the criterion was 4110. Hence, our final model looks like this:
 
-<I will (incorrectly) be using a linear regression model to model the proportion of voters who will vote for Donald Trump. This is a naive model. I will only be using age, which is recorded as a numeric variable, to model the probability of voting for Donald Trump. The simple linear regression model I am using is:> 
+$$ log(\frac{p}{1-p}) = \beta_0 + \beta_1  x_{age} + \beta_2  x_{province2} + \beta_3  x_{province3} +
+\beta_4  x_{province4} + \beta_5  x_{province5} + \beta_6  x_{province6} + \beta_7  x_{province7} + 
+\beta_8  x_{province8}$$
 
-$$ y = \beta_0+\beta_1  x_{age} + \epsilon$$
+$$+ \beta_9  x_{province9} + \beta_{10}  x_{province10} + \beta_{11}  x_{income2} + \beta_{12}  x_{income3} + 
+\beta_{13}  x_{income4} + \beta_{14}  x_{income5} + \beta_{15}  x_{income6} + \epsilon$$
 
-<Where $y$ represents the ....  $\beta_0$ represents....>
+where:
+
+- $log(\frac{p}{1-p})$ is the logit function with probability $p$
+- $\beta_0$ is the intercept term
+- $\beta_1 x_{age}$ 
+
 
 ```{r, echo = TRUE, include=TRUE}
 
 # Creating the Model
-model <- glm(vote_liberal ~ age + province + income + education, data=survey_data, family = binomial)
+model <- glm(vote_liberal ~ age + province + income, data=survey_data, family = binomial)
 
 # back1 = step(model, direction = "backward")
 
