@@ -252,18 +252,41 @@ model <- lm(vote_liberal ~ age, data=survey_data)
 
 ```{r, include=FALSE}
 
+library(knitr)
+library(kableExtra)
+library(gridExtra)
+
 # Here I will perform the post-stratification calculation
 census_data_counts <- census_data %>% 
-  group_by(age) %>% 
+  group_by(age, province, income) %>% 
   summarise(n=n())
+
+census_data_counts
 
 census_data_counts$estimate <-
   model %>%
   predict(newdata = census_data_counts)
 
-census_data_counts %>% 
+group_by_age <- census_data_counts %>% 
   mutate(liberal_predict_prop = estimate*n) %>%
+  group_by(age)%>%
   summarise(liberal_predict = sum(liberal_predict_prop)/sum(n))
+
+group_by_province <- census_data_counts %>% 
+  mutate(liberal_predict_prop = estimate*n) %>%
+  group_by(province)%>%
+  summarise(liberal_predict = sum(liberal_predict_prop)/sum(n))
+
+group_by_income <- census_data_counts %>% 
+  mutate(liberal_predict_prop = estimate*n) %>%
+  group_by(income)%>%
+  summarise(liberal_predict = sum(liberal_predict_prop)/sum(n))
+
+group_by_age %>% kable(row.names=T, escape=F, caption="Logistic Regression Model Summary") %>% kable_styling(latex_options="HOLD_position")
+
+group_by_province %>% kable(row.names=T, escape=F, caption="Logistic Regression Model Summary") %>% kable_styling(latex_options="HOLD_position")
+
+group_by_income %>% kable(row.names=T, escape=F, caption="Logistic Regression Model Summary") %>% kable_styling(latex_options="HOLD_position")
 
 ```
 
